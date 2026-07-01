@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  rag-app:
+    build: .
+    image: rag-novel-app:latest
+    ports:
+      - "8501:8501"
+    environment:
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://localhost:11434}
+      - CHROMA_PERSIST_DIR=/data/chroma_db
+      - DOCS_DIR=/app/docs
+    volumes:
+      - ./chroma_db:/data/chroma_db
+      - ./docs:/app/docs
+    restart: unless-stopped
