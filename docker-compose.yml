@@ -1,32 +1,17 @@
-version: '3.8'
-
 services:
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    restart: unless-stopped
-    # Jalankan pull model setelah container start
-    entrypoint: ["/bin/sh", "-c", "ollama serve & sleep 5 && ollama pull nomic-embed-text && ollama pull llama3 && wait"]
-
   rag-app:
     build: .
     image: rag-novel-app:latest
     ports:
       - "8501:8501"
     environment:
-      # Pakai nama service "ollama", bukan localhost
-      - OLLAMA_BASE_URL=http://ollama:11434
+      # host-gateway mengarah ke host DO tempat Ollama jalan langsung
+      - OLLAMA_BASE_URL=http://host-gateway:11434
       - CHROMA_PERSIST_DIR=/data/chroma_db
       - DOCS_DIR=/app/docs
+    extra_hosts:
+      - "host-gateway:host-gateway"
     volumes:
       - ./chroma_db:/data/chroma_db
       - ./docs:/app/docs
-    depends_on:
-      - ollama
     restart: unless-stopped
-
-volumes:
-  ollama_data:
